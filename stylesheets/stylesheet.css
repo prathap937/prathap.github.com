@@ -54,7 +54,9 @@ a:focus {
 /*******************************************************************************
 Theme Styles
 *******************************************************************************/
-
+html,body{
+  height:100%;
+}
 body {
   box-sizing: border-box;
   color:#373737;
@@ -365,6 +367,7 @@ Full-Width Styles
   /* border-top: 1px solid #111; */
   /* border-bottom: 1px solid #111; */
   position: relative;
+  height: 100%;
 }
 .sticky{
     position: absolute;
