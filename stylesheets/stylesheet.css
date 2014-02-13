@@ -366,6 +366,15 @@ Full-Width Styles
   /* border-bottom: 1px solid #111; */
   position: relative;
 }
+.sticky{
+    position: absolute;
+  
+    background: url(../images/sticky.png) no-repeat left top;
+    width: 323px;
+    height: 109px;
+    bottom: 0;
+    right: 0;
+}
 
 #main_content {
   /* padding-top: 40px; */
