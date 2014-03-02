@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>paperJet</title>
+  <meta name="viewport" content="width=device-width,maximum-scale=1.0, initial-scale=1">
+  <script src="js/jquery-2.0.3.min.js"></script>
+  <script src="js/phaser.min.js"></script>
+  <style type="text/css">
+  html,body{
+    width: 100%;
+    height: 100%;
+  }
+  #phaser-example{
+    width: 100%;
+    height: 100%;
+  }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" ></canvas>
+  <script type="text/javascript">
+  // var screenSizeWidth,screenSizeHeigth;
+  // $(function(){
+  //   screenSizeWidth = $('html').width();
+  //   screenSizeHeigth = $('html').height();
+  //   console.log(screenSizeWidth,screenSizeHeigth);
+  // })
+  window.onload = function() {
+    var platforms,jet,ground,spacer,star,starHidden,starsHiddenGroup,pillar,cloud,touch,randomVar,score,pointgroup,newangle=0,counter=0,viewportArea=14000,angleTarget,prevAngle=0,cloudGroup,cloudLarge,movingGroup;
+    var game = new Phaser.Game(640, 960, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create,update:update,render:render });
+    function preload () {
+      // console.log(game.stage);
+      // game.renderer.resize( window.innerWidth,  window.innerHeight);
+      game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+
+      game.load.image('sky', 'images/game-bg.png');
+      game.load.image('pillar', 'images/pillar.png');
+      game.load.image('grass', 'images/grass.png');
+      game.load.image('star', 'images/star.png');
+      game.load.image('hiddenstar', 'images/star.png');
+      game.load.image('jet', 'images/jet.png');
+      game.load.image('cloud', 'images/cloud.png');
+      game.load.image('cloudLarge', 'images/cloud-large.png');
+      // game.load.image('spacer','images/spacer.gif');
+    }
+
+    function create () {
+      game.world.setBounds(0, 0, viewportArea, 960);
+      randomVar=game.rnd.integerInRange(100, 200);
+      var sky = game.add.sprite(0,0,'sky');
+      sky.fixedToCamera =true;
+      
+     
+
+      movingGroup = game.add.group();
+      platforms = game.add.group();
+      pointgroup = game.add.group();
+      starsHiddenGroup = game.add.group();
+      cloudGroup = game.add.group();
+      
+      jet = movingGroup.create(200,200,'jet');
+      jet.body.setPolygon(0,0, 120,9, 28,35);
+
+      jet.body.velocity.x = 150;
+      // jet.body.bounce.y = 0.1;
+      jet.body.gravity.y = 120;
+
+      // jet.body.angularVelocity = 10;
+      // jet.body.angularDrag = 10;
+      
+      jet.body.collideWorldBounds = true;
+    // jet.body.angularAcceleration=0.5;
+    jet.anchor.setTo(0,0.1);
+    // jet.cameraOffset.x = -1500;
+    // jet.body.translate(5,5);
+      // jet.fixedToCamera = true;
+      // jet.cameraOffset.x = 100;
+        // jet.cameraOffset.y = 500;
+        for(i=0;i<50;i++){
+          cloud = cloudGroup.create((game.width*i)-(game.rnd.integerInRange(0,1000)),(game.rnd.integerInRange(0,100)),'cloud');
+          cloud.body.velocity.x = game.rnd.integerInRange(-5,-30);
+          cloudLarge = cloudGroup.create((game.width*i)-(game.rnd.integerInRange(0,1000)),0,'cloudLarge');
+          cloudLarge.body.velocity.x = game.rnd.integerInRange(-1,-20);
+          // star = game.add.sprite((game.width-50)*i,game.height-770,'star');
+          randomVar=game.rnd.integerInRange(100, 700);
+          star = pointgroup.create(game.width*(i+2),game.height-randomVar,'star');
+          // star.body.translate(0, 144);
+          star.scale.setTo(0.6,0.6);
+          star.anchor.setTo(-2.6, 1.5);
+          starHidden = starsHiddenGroup.create(game.width*(i+2),game.height-randomVar,'hiddenstar');
+          starHidden.scale.setTo(0.6,0.6);
+          starHidden.anchor.setTo(-2.6, 1.5);
+          pillar = platforms.create(game.width*(i+2), game.height-randomVar,'pillar');
+          pillar.body.immovable = true;
+          pillar.body.setPolygon(72,0,172,0,215,650,-5,650);
+        }
+      // ground = game.add.tileSprite(0,game.height-528,game.width,128,'grass');
+      ground = game.add.tileSprite(0,game.height-128,viewportArea,128,'grass');
+      ground.body.setPolygon(0,60,viewportArea,60,viewportArea,125,0,125);
+      ground.body.immovable = true;
+      // spacer = platforms.create(0,game.height-475,'spacer');
+      // spacer.body.immovable = true;
+      // spacer.scale.setTo(1,5);
+      movingGroup.pivot.x =200;
+      touch = game.input.onHold;
+      game.input.onTap.add(touchAdded, this); 
+      game.camera.follow(jet,Phaser.Camera.FOLLOW_LOCKON);
+      score = game.add.text(150,20,"0",{font:"20px Arial",fill:"#ffffff",align:"center"});
+      score.anchor.setTo(1,0)
+      score.fixedToCamera =true;
+      score.cameraOffset.setTo(600, 20);
+
+       angleTarget = game.add.sprite(950,900,'star');
+      angleTarget.body.velocity.x = 150;
+      angleTarget.body.gravity.y=620;
+      angleTarget.body.collideWorldBounds = true;
+
+    //  sprite1 = game.add.sprite(80, 200);
+    // sprite1.anchor.setTo(0, 0);
+    // sprite1.body.setPolygon(0,0, 60,0, 100,40, 60,80, 0,80);
+    // sprite1.body.translate(0, 144);
+    // sprite1.body.immovable = true;
+    // sprite1.body.allowGravity = false;
+  }
+
+
+  function update(){
+    jet.body.polygon.rotate(prevAngle*-1);
+    jet.body.polygon.rotate(jet.rotation);
+    prevAngle = jet.rotation;
+
+    jet.rotation= game.physics.angleBetween(jet, angleTarget);
+    jet.body.polygon.rotate(0);
+    
+    game.physics.collide(jet, [platforms,ground],gameEnd);
+    // jet.body.velocity.x = 250;
+    // game.camera.x+=3;
+    // jet.angle += 0.05;
+    // jet.body.angularVelocity=15;
+    game.physics.overlap(jet,pointgroup,scoreUpdate);
+    game.physics.overlap(jet,starsHiddenGroup,animateStar);
+  }
+  function animateStar(a,b){
+    b.body.velocity.y=-450;
+  }
+  function scoreUpdate(a,b){
+    b.kill();
+    counter+=10;
+    score.setText(counter);
+  }
+
+  function touchAdded(){
+    angleTarget.body.velocity.y=-650;
+    jet.body.velocity.y = -150;
+    // jet.body.rotate = 150;
+    // jet.angle -= 5;
+    // jet.rotation+=100;
+    // jet.body.angularVelocity=-600;
+    goingUp=true;
+  }
+  function render() {
+    // game.debug.renderCameraInfo(game.camera, 32, 32);
+    // game.debug.renderPhysicsBody(jet.body);
+     // game.debug.renderPhysicsBody(star.body);
+
+     // game.debug.renderInputInfo(16, 16);
+    // game.debug.renderPhysicsBody(pillar.body);
+    // game.debug.renderBodyInfo(jet);
+    // game.debug(jet);
+    // game.debug.renderPhysicsBody(sprite2.body);
+    // game.debug.renderPhysicsBody(sprite3.body);
+    // game.debug.renderPhysicsBody(sprite4.body);
+
+  }
+  function gameEnd (){
+    // jet.body.velocity.y = 300;
+    jet.body.collideWorldBounds = false;
+    // jet.body.angularVelocity = 0;
+    jet.kill();
+  }
+};
+</script>
+<!-- <div id="phaser-example"></div> -->
+</body>
+</html>
